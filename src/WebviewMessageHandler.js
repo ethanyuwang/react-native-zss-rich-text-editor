@@ -10,23 +10,17 @@ export const InjectedMessageHandler = `
         case '${actions.enableOnChange}':
           zss_editor.enableOnChange();
           break;
-        case '${actions.setTitleHtml}':
-          zss_editor.setTitleHTML(action.data);
+        case '${actions.disableContentEditing}':
+          zss_editor.disableContentEditing();
           break;
-        case '${actions.toggleTitle}':
-          zss_editor.toggleTitle(action.data);
+        case '${actions.enableContentEditing}':
+          zss_editor.enableContentEditing();
           break;
-        case '${actions.hideTitle}':
-          zss_editor.hideTitle(action.data);
-          break;
-        case '${actions.showTitle}':
-          zss_editor.showTitle(action.data);
+        case '${actions.toggleContentEditing}':
+          zss_editor.toggleContentEditing();
           break;
         case '${actions.setContentHtml}':
           zss_editor.setContentHTML(action.data);
-          break;
-        case '${actions.blurTitleEditor}':
-          zss_editor.blurTitleEditor();
           break;
         case '${actions.blurContentEditor}':
           zss_editor.blurContentEditor();
@@ -109,26 +103,12 @@ export const InjectedMessageHandler = `
         case '${actions.setOutdent}':
           zss_editor.setOutdent();
           break;
-        case '${actions.setTitlePlaceholder}':
-          zss_editor.setTitlePlaceholder(action.data);
-          break;
         case '${actions.setContentPlaceholder}':
           zss_editor.setContentPlaceholder(action.data);
-          break;
-        case '${actions.getTitleHtml}':
-          var html = zss_editor.getTitleHTML();
-          WebViewBridge.send(JSON.stringify({type: '${messages.TITLE_HTML_RESPONSE}', data: html}));
-          break;
-        case '${actions.getTitleText}':
-          var html = zss_editor.getTitleText();
-          WebViewBridge.send(JSON.stringify({type: '${messages.TITLE_TEXT_RESPONSE}', data: html}));
           break;
         case '${actions.getContentHtml}':
           var html = zss_editor.getContentHTML();
           WebViewBridge.send(JSON.stringify({type: '${messages.CONTENT_HTML_RESPONSE}', data: html}));
-          break;
-        case '${actions.setTitleFocusHandler}':
-          zss_editor.setTitleFocusHandler();
           break;
         case '${actions.setContentFocusHandler}':
           zss_editor.setContentFocusHandler();
@@ -139,9 +119,6 @@ export const InjectedMessageHandler = `
           break;
         case '${actions.focusContent}':
           zss_editor.focusContent();
-          break;
-        case '${actions.focusTitle}':
-          zss_editor.focusTitle();
           break;
         case '${actions.prepareInsert}':
           zss_editor.prepareInsert();

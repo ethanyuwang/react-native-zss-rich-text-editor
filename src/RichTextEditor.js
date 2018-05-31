@@ -15,13 +15,10 @@ const PlatformIOS = Platform.OS === 'ios';
 
 export default class RichTextEditor extends Component {
   static propTypes = {
-    initialTitleHTML: PropTypes.string,
     initialContentHTML: PropTypes.string,
-    titlePlaceholder: PropTypes.string,
     contentPlaceholder: PropTypes.string,
     editorInitializedCallback: PropTypes.func,
     customCSS: PropTypes.string,
-    hiddenTitle: PropTypes.bool,
     enableOnChange: PropTypes.bool,
     footerHeight: PropTypes.number,
     contentInset: PropTypes.object
@@ -99,28 +96,6 @@ export default class RichTextEditor extends Component {
       const message = JSON.parse(str);
 
       switch (message.type) {
-        case messages.TITLE_HTML_RESPONSE:
-          if (this.titleResolve) {
-            this.titleResolve(message.data);
-            this.titleResolve = undefined;
-            this.titleReject = undefined;
-            if (this.pendingTitleHtml) {
-              clearTimeout(this.pendingTitleHtml);
-              this.pendingTitleHtml = undefined;
-            }
-          }
-          break;
-        case messages.TITLE_TEXT_RESPONSE:
-          if (this.titleTextResolve) {
-            this.titleTextResolve(message.data);
-            this.titleTextResolve = undefined;
-            this.titleTextReject = undefined;
-            if (this.pendingTitleText) {
-              clearTimeout(this.pendingTitleText);
-              this.pendingTitleText = undefined;
-            }
-          }
-          break;
         case messages.CONTENT_HTML_RESPONSE:
           if (this.contentResolve) {
             this.contentResolve(message.data);
@@ -147,12 +122,9 @@ export default class RichTextEditor extends Component {
           if (this.props.customCSS) {
             this.setCustomCSS(this.props.customCSS);
           }
-          this.setTitlePlaceholder(this.props.titlePlaceholder);
           this.setContentPlaceholder(this.props.contentPlaceholder);
-          this.setTitleHTML(this.props.initialTitleHTML);
           this.setContentHTML(this.props.initialContentHTML);
 
-          this.props.hiddenTitle && this.hideTitle();
           this.props.enableOnChange && this.enableOnChange();
 
           this.props.editorInitializedCallback && this.props.editorInitializedCallback();
@@ -168,9 +140,6 @@ export default class RichTextEditor extends Component {
           break;
         case messages.SCROLL:
           this.webviewBridge.setNativeProps({contentOffset: {y: message.data}});
-          break;
-        case messages.TITLE_FOCUSED:
-          this.titleFocusHandler && this.titleFocusHandler();
           break;
         case messages.CONTENT_FOCUSED:
           this.contentFocusHandler && this.contentFocusHandler();
@@ -340,10 +309,6 @@ export default class RichTextEditor extends Component {
     });
   }
 
-  focusTitle() {
-    this._sendAction(actions.focusTitle);
-  }
-
   focusContent() {
     this._sendAction(actions.focusContent);
   }
@@ -364,24 +329,20 @@ export default class RichTextEditor extends Component {
     });
   }
 
-  setTitleHTML(html) {
-    this._sendAction(actions.setTitleHtml, html);
-  }
-  hideTitle() {
-    this._sendAction(actions.hideTitle);
-  }
-  showTitle() {
-    this._sendAction(actions.showTitle);
-  }
-  toggleTitle() {
-    this._sendAction(actions.toggleTitle);
-  }
-  setContentHTML(html) {
-    this._sendAction(actions.setContentHtml, html);
+  disableContentEditing() {
+    this._sendAction(actions.disableContentEditing);
   }
 
-  blurTitleEditor() {
-    this._sendAction(actions.blurTitleEditor);
+  enableContentEditing() {
+    this._sendAction(actions.enableContentEditing);
+  }
+
+  toggleContentEditing() {
+    this._sendAction(actions.toggleContentEditing);
+  }
+
+  setContentHTML(html) {
+    this._sendAction(actions.setContentHtml, html);
   }
 
   blurContentEditor() {
@@ -501,10 +462,6 @@ export default class RichTextEditor extends Component {
     this._sendAction(actions.setTextColor, color);
   }
 
-  setTitlePlaceholder(placeholder) {
-    this._sendAction(actions.setTitlePlaceholder, placeholder);
-  }
-
   setContentPlaceholder(placeholder) {
     this._sendAction(actions.setContentPlaceholder, placeholder);
   }
@@ -541,34 +498,6 @@ export default class RichTextEditor extends Component {
     this._sendAction(actions.setPlatform, Platform.OS);
   }
 
-  async getTitleHtml() {
-    return new Promise((resolve, reject) => {
-      this.titleResolve = resolve;
-      this.titleReject = reject;
-      this._sendAction(actions.getTitleHtml);
-
-      this.pendingTitleHtml = setTimeout(() => {
-        if (this.titleReject) {
-          this.titleReject('timeout')
-        }
-      }, 5000);
-    });
-  }
-
-  async getTitleText() {
-    return new Promise((resolve, reject) => {
-      this.titleTextResolve = resolve;
-      this.titleTextReject = reject;
-      this._sendAction(actions.getTitleText);
-
-      this.pendingTitleText = setTimeout(() => {
-        if (this.titleTextReject) {
-          this.titleTextReject('timeout');
-        }
-      }, 5000);
-    });
-  }
-
   async getContentHtml() {
     return new Promise((resolve, reject) => {
       this.contentResolve = resolve;
@@ -595,11 +524,6 @@ export default class RichTextEditor extends Component {
         }
       }, 5000);
     });
-  }
-
-  setTitleFocusHandler(callbackHandler) {
-    this.titleFocusHandler = callbackHandler;
-    this._sendAction(actions.setTitleFocusHandler);
   }
 
   setContentFocusHandler(callbackHandler) {
