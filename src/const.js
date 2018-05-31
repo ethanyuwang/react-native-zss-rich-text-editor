@@ -1,5 +1,7 @@
 export const actions = {
   enableOnChange: 'ENABLE_ON_CHANGE',
+  startContentEditing: 'START_CONTENT_EDITING',
+  endContentEditing: 'END_CONTENT_EDITING',
   disableContentEditing: 'DISABLE_CONTENT_EDITING',
   enableContentEditing: 'ENABLE_CONTENT_EDITING',
   toggleContentEditing: 'TOGGLE_CONTENT_EDITING',

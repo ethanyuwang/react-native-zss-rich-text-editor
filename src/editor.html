@@ -1367,6 +1367,16 @@
 				});
 			}
 
+			zss_editor.startContentEditing = function() {
+				zss_editor.enableContentEditing()
+				zss_editor.focusContent()
+			}
+
+			zss_editor.endContentEditing = function() {
+				zss_editor.blurContentEditor()
+				zss_editor.disableContentEditing()
+			}
+
 			zss_editor.disableContentEditing = function(html) {
 				$('#zss_editor_content').attr('contenteditable','false');
 			}
@@ -1377,13 +1387,7 @@
 
 			zss_editor.toggleContentEditing = function(html) {
 				var value = $('#zss_editor_content').attr('contenteditable');
-
-			    if (value == 'false') {
-			        $('#zss_editor_content').attr('contenteditable','true');
-			    }
-			    else {
-			        $('#zss_editor_content').attr('contenteditable','false');
-			    }
+			    value == 'false' ? zss_editor.enableContentEditing() : zss_editor.disableContentEditing();
 			}
 
 			zss_editor.setContentHTML = function(html) {

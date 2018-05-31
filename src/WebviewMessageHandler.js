@@ -10,6 +10,12 @@ export const InjectedMessageHandler = `
         case '${actions.enableOnChange}':
           zss_editor.enableOnChange();
           break;
+        case '${actions.startContentEditing}':
+          zss_editor.startContentEditing();
+          break;
+        case '${actions.endContentEditing}':
+          zss_editor.endContentEditing();
+          break;
         case '${actions.disableContentEditing}':
           zss_editor.disableContentEditing();
           break;
