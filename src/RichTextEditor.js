@@ -94,6 +94,8 @@ export default class RichTextEditor extends Component {
   onBridgeMessage(str){
     try {
       const message = JSON.parse(str);
+      console.log("MESSAGE==============>")
+      console.log(message)
 
       switch (message.type) {
         case messages.CONTENT_HTML_RESPONSE:
@@ -144,10 +146,11 @@ export default class RichTextEditor extends Component {
         case messages.CONTENT_FOCUSED:
           this.contentFocusHandler && this.contentFocusHandler();
           break;
+        case messages.CARET:
         case messages.SELECTION_CHANGE: {
-          const items = message.data.items;
+          //const items = message.data;
           this.state.selectionChangeListeners.map((listener) => {
-            listener(items);
+            listener(message.data);
           });
           break;
         }
@@ -436,6 +439,10 @@ export default class RichTextEditor extends Component {
   insertImage(attributes) {
     this._sendAction(actions.insertImage, attributes);
     this.prepareInsert(); //This must be called BEFORE insertImage. But WebViewBridge uses a stack :/
+  }
+
+  showAutocomplete(autocomplete) {
+    this._sendAction(actions.showAutocomplete, autocomplete);
   }
 
   setSubscript() {
