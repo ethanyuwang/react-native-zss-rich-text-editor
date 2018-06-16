@@ -33,6 +33,7 @@ export const actions = {
   insertLink: 'INST_LINK',
   updateLink: 'UPDATE_LINK',
   insertImage: 'INST_IMAGE',
+  insertText: 'INST_TETX',
   showAutocomplete: 'SHOW_AUTOCOMPLETE',
   setSubscript: 'subscript',
   setSuperscript: 'superscript',

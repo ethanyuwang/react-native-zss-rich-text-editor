@@ -91,6 +91,9 @@ export const InjectedMessageHandler = `
         case '${actions.insertImage}':
           zss_editor.insertImage(action.data);
           break;
+        case '${actions.insertText}':
+          zss_editor.insertText(action.data);
+          break;
         case '${actions.showAutocomplete}':
           zss_editor.showAutocomplete(action.data);
           break;

@@ -1395,14 +1395,19 @@
 				zss_editor.enabledEditingItems();
 			}
 
+			zss_editor.insertText = function(text) {
+				var sel = window.getSelection();
+				var range = sel.getRangeAt(0);
+				range.deleteContents();
+            	range.insertNode(document.createTextNode(text));
+			}
+
 			zss_editor.showAutocomplete = function(autocomplete) {
 				var sel = window.getSelection();
 				var range = sel.getRangeAt(0);
 				range.deleteContents();
             	range.insertNode( document.createTextNode(autocomplete) );
 			}
-
-
 
 			function setHTML(editorId, html) {
 				var editor = $('#' + editorId);
