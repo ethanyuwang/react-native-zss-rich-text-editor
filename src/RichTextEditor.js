@@ -120,6 +120,28 @@ export default class RichTextEditor extends Component {
             }
           }
           break;
+        case messages.CONTENT_TEXT_RESPONSE:
+          if (this.contentTextResolve) {
+            this.contentTextResolve(message.data);
+            this.contentTextResolve = undefined;
+            this.contentTextReject = undefined;
+            if (this.pendingContentText) {
+              clearTimeout(this.pendingContentText);
+              this.pendingContentText = undefined;
+            }
+          }
+          break;
+        case messages.CONTENT_HTML_TEXT_RESPONSE:
+          if (this.contentHtmlTextResolve) {
+            this.contentHtmlTextResolve(message.data);
+            this.contentHtmlTextResolve = undefined;
+            this.contentHtmlTextReject = undefined;
+            if (this.pendingContentHtmlText) {
+              clearTimeout(this.pendingContentHtmlText);
+              this.pendingContentHtmlText = undefined;
+            }
+          }
+          break;
         case messages.ZSS_INITIALIZED:
           if (this.props.customCSS) {
             this.setCustomCSS(this.props.customCSS);
@@ -330,6 +352,16 @@ export default class RichTextEditor extends Component {
     });
   }
 
+  unregisterToolbar(listener) {
+    const listeners = this.state.selectionChangeListeners
+    index = this.state.selectionChangeListeners.indexOf(listener)
+    if (index > -1) {
+      this.setState({
+        selectionChangeListeners: listeners.splice(index, 1)
+      })
+    }
+  }
+
   enableOnChange() {
     this._sendAction(actions.enableOnChange);
   }
@@ -396,6 +428,10 @@ export default class RichTextEditor extends Component {
     this._sendAction(actions.heading6);
   }
 
+  unsetHeading() {
+    this._sendAction(actions.unsetHeading);
+  }
+
   setParagraph() {
     this._sendAction(actions.setParagraph);
   }
@@ -445,8 +481,17 @@ export default class RichTextEditor extends Component {
     this._sendAction(actions.insertText, text);
   }
 
+  restoreCaretAndInsertText(text){
+    this._sendAction(actions.restoreCaretAndInsertText, text)
+    this.prepareInsert();
+  }
+
   showAutocomplete(autocomplete) {
     this._sendAction(actions.showAutocomplete, autocomplete);
+  }
+
+  clearAutocomplete() {
+    this._sendAction(actions.clearAutocomplete);
   }
 
   setSubscript() {
@@ -505,6 +550,14 @@ export default class RichTextEditor extends Component {
     }
   }
 
+  undo() {
+    this._sendAction(actions.undo);
+  }
+
+  redo() {
+    this._sendAction(actions.redo);
+  }
+
   setEditorHeight(height) {
     this._sendAction(actions.setEditorHeight, height);
   }
@@ -540,6 +593,34 @@ export default class RichTextEditor extends Component {
       this.pendingSelectedText = setTimeout(() => {
         if (this.selectedTextReject) {
           this.selectedTextReject('timeout')
+        }
+      }, 5000);
+    });
+  }
+
+  async getContentText() {
+    return new Promise((resolve, reject) => {
+      this.contentTextResolve = resolve;
+      this.contentTextReject = reject;
+      this._sendAction(actions.getContentText);
+
+      this.pendingContentText = setTimeout(() => {
+        if (this.contentTextReject) {
+          this.contentTextReject('timeout')
+        }
+      }, 5000);
+    });
+  }
+
+  async getContentHtmlText() {
+    return new Promise((resolve, reject) => {
+      this.contentHtmlTextResolve = resolve;
+      this.contentHtmlTextReject = reject;
+      this._sendAction(actions.getContentHtmlText);
+
+      this.pendingContentHtmlText = setTimeout(() => {
+        if (this.contentHtmlTextReject) {
+          this.contentHtmlTextReject('timeout')
         }
       }, 5000);
     });

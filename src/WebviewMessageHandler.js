@@ -58,6 +58,9 @@ export const InjectedMessageHandler = `
         case '${actions.heading6}':
           zss_editor.setHeading('h6');
           break;
+        case '${actions.unsetHeading}':
+          zss_editor.unsetHeading();
+          break;
         case '${actions.setParagraph}':
           zss_editor.setParagraph();
           break;
@@ -94,8 +97,14 @@ export const InjectedMessageHandler = `
         case '${actions.insertText}':
           zss_editor.insertText(action.data);
           break;
+        case '${actions.restoreCaretAndInsertText}':
+          zss_editor.restoreCaretAndInsertText(action.data);
+          break;
         case '${actions.showAutocomplete}':
           zss_editor.showAutocomplete(action.data);
+          break;
+        case '${actions.clearAutocomplete}':
+          zss_editor.clearAutocomplete();
           break;
         case '${actions.setSubscript}':
           zss_editor.setSubscript();
@@ -129,6 +138,15 @@ export const InjectedMessageHandler = `
           var selectedText = getSelection().toString();
           WebViewBridge.send(JSON.stringify({type: '${messages.SELECTED_TEXT_RESPONSE}', data: selectedText}));
           break;
+        case '${actions.getContentText}':
+          var contentText = zss_editor.getContentText()
+          WebViewBridge.send(JSON.stringify({type: '${messages.CONTENT_TEXT_RESPONSE}', data: contentText}));
+          break;
+        case '${actions.getContentHtmlText}':
+          var contentText = zss_editor.getContentText()
+          var contentHTML = zss_editor.getContentHTML();
+          WebViewBridge.send(JSON.stringify({type: '${messages.CONTENT_HTML_TEXT_RESPONSE}', data: {contentText, contentHTML}}));
+          break;
         case '${actions.focusContent}':
           zss_editor.focusContent();
           break;
@@ -149,6 +167,12 @@ export const InjectedMessageHandler = `
           break;
         case '${actions.init}':
           zss_editor.init();
+          break;
+        case '${actions.undo}':
+          zss_editor.undo();
+          break;
+        case '${actions.redo}':
+          zss_editor.redo();
           break;
         case '${actions.setEditorHeight}':
           zss_editor.setEditorHeight(action.data);

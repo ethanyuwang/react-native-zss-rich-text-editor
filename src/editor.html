@@ -813,6 +813,9 @@
 			// Sets to true when extra footer gap shows and requires to hide
 			zss_editor.updateScrollOffset = false;
 
+			// Caret's current saved position
+			zss_editor.caretPosition;
+
 			/**
 			 * The initializer function that must be called onLoad
 			 */
@@ -875,6 +878,8 @@
 
 			zss_editor.init = function() {
 
+				document.execCommand('defaultParagraphSeparator', false, 'p');
+
 				disableLineBreakIfNecessary('zss_editor_content');
 
 				setupTouchEndEnableEditing('zss_editor_content');
@@ -890,6 +895,11 @@
 					zss_editor.setScrollPosition();
 					zss_editor.enabledEditingItems(e);
 					notifyIfSelectedTextHasChanged();
+
+					//wrap first paragraph
+					/*$('#zss_editor_content').contents().eq('0').filter(function(){
+						return this.nodeType != 1;
+					}).wrap( '<p/>' );*/
 				});
 
 				// Make sure that when we tap anywhere in the document we focus on the editor
@@ -1024,15 +1034,21 @@
 				var range = sel.getRangeAt(0);
 				var paragraphNode = range.commonAncestorContainer;
 
+				WebViewBridge.send(JSON.stringify({type: 'CARET', data: "1"}));
+
 				//find the parent node that contains the entire paragraph
 				while (paragraphNode.parentNode!=null && PARAGRAPH_NODE_NAMES.indexOf(paragraphNode.nodeName)<0) {
 					paragraphNode = paragraphNode.parentNode
 				}
 
+				WebViewBridge.send(JSON.stringify({type: 'CARET', data: "2"}));
+
 				//if found paragraph node
 				if (PARAGRAPH_NODE_NAMES.indexOf(paragraphNode.nodeName)>-1) {
 					//get paragraph text
 					var paragraphText = paragraphNode.innerText
+
+					WebViewBridge.send(JSON.stringify({type: 'CARET', data: "3"}));
 
 					//get caret's location relative to the start and end of paragraph
 					var preCaretRange = range.cloneRange();
@@ -1178,6 +1194,11 @@
 					document.execCommand('formatBlock', false, '<'+heading+'>');
 				}
 
+				zss_editor.enabledEditingItems();
+			}
+
+			zss_editor.unsetHeading = function() {
+				document.execCommand('formatBlock', false, '<div>');
 				zss_editor.enabledEditingItems();
 			}
 
@@ -1399,14 +1420,47 @@
 				var sel = window.getSelection();
 				var range = sel.getRangeAt(0);
 				range.deleteContents();
-            	range.insertNode(document.createTextNode(text));
+				textNode = document.createTextNode(text)
+            	range.insertNode(textNode);
+
+            	range = range.cloneRange();
+				range.selectNodeContents(textNode);
+				range.collapse(false);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
+
+			zss_editor.restoreCaretAndInsertText = function(text) {
+				zss_editor.restorerange();
+				zss_editor.enabledEditingItems();
+
+				zss_editor.insertText(text)
 			}
 
 			zss_editor.showAutocomplete = function(autocomplete) {
+				//delete previous node
+				zss_editor.clearAutocomplete()
+
+				//get current selection
 				var sel = window.getSelection();
 				var range = sel.getRangeAt(0);
 				range.deleteContents();
-            	range.insertNode( document.createTextNode(autocomplete) );
+
+				//create new textNode
+				var textNode = document.createTextNode(autocomplete)
+				var span = document.createElement("span");
+				span.id = "autocomplete"
+				span.style.color = '#8E8E93';
+				span.appendChild(textNode);
+
+            	range.insertNode(span);
+			}
+
+			zss_editor.clearAutocomplete = function() {
+				autocompleteNode = document.getElementById("autocomplete")
+				if (autocompleteNode !== null && autocompleteNode !== undefined) {
+					autocompleteNode.parentNode.removeChild(autocompleteNode)
+				}
 			}
 
 			function setHTML(editorId, html) {
@@ -1496,7 +1550,8 @@
 			}
 
 			zss_editor.getContentText = function() {
-				return $('#zss_editor_content').text();
+				var contentText = document.getElementById("zss_editor_content").innerText;
+				return contentText
 			}
 
 			zss_editor.isCommandEnabled = function(commandName) {
@@ -1671,6 +1726,7 @@
 				zss_editor.platform = platform;
 			}
 
+
 			//end
 		</script>
 
@@ -1727,7 +1783,7 @@
 
 			#zss_editor_content {
 				padding: 10px;
-				padding-bottom: 40px;
+				padding-bottom: 200px;
 			}
 
 			[placeholder]:empty:before {

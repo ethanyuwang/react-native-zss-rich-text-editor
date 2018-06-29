@@ -8,6 +8,8 @@ export const actions = {
   setContentHtml: 'SET_CONTENT_HTML',
   getContentHtml: 'GET_CONTENT_HTML',
   getSelectedText: 'GET_SELECTED_TEXT',
+  getContentText: 'GET_CONTENT_TEXT',
+  getContentHtmlText: 'GET_CONTENT_HTML_TEXT',
   blurTitleEditor: 'BLUR_TITLE_EDITOR',
   blurContentEditor: 'BLUR_CONTENT_EDITOR',
   focusTitle: 'FOCUS_TITLE',
@@ -22,6 +24,7 @@ export const actions = {
   heading4: 'h4',
   heading5: 'h5',
   heading6: 'h6',
+  unsetHeading: 'UNSET_HEADING',
   setParagraph: 'SET_PARAGRAPH',
   removeFormat: 'REMOVE_FORMAT',
   alignLeft: 'justifyLeft',
@@ -34,7 +37,9 @@ export const actions = {
   updateLink: 'UPDATE_LINK',
   insertImage: 'INST_IMAGE',
   insertText: 'INST_TETX',
+  restoreCaretAndInsertText: 'RESTORE_CARET_AND_INSERT_TEXT',
   showAutocomplete: 'SHOW_AUTOCOMPLETE',
+  clearAutocomplete: 'CLEAR_AUTOCOMPLETE',
   setSubscript: 'subscript',
   setSuperscript: 'superscript',
   setStrikethrough: 'strikeThrough',
@@ -51,6 +56,8 @@ export const actions = {
   setTextColor: 'SET_TEXT_COLOR',
   setBackgroundColor: 'SET_BACKGROUND_COLOR',
   init: 'ZSSS_INIT',
+  undo: 'UNDO',
+  redo: 'REDO',
   setEditorHeight: 'SET_EDITOR_HEIGHT',
   setFooterHeight: 'SET_FOOTER_HEIGHT',
   setPlatform: 'SET_PLATFORM'
@@ -58,8 +65,6 @@ export const actions = {
 
 
 export const messages = {
-  TITLE_HTML_RESPONSE: 'TITLE_HTML_RESPONSE',
-  TITLE_TEXT_RESPONSE: 'TITLE_TEXT_RESPONSE',
   CONTENT_HTML_RESPONSE: 'CONTENT_HTML_RESPONSE',
   ZSS_INITIALIZED: 'ZSS_INITIALIZED',
   SCROLL: 'SCROLL',
@@ -70,6 +75,8 @@ export const messages = {
   SELECTION_CHANGE: 'SELECTION_CHANGE',
   CONTENT_CHANGE: 'CONTENT_CHANGE',
   SELECTED_TEXT_RESPONSE: 'SELECTED_TEXT_RESPONSE',
+  CONTENT_TEXT_RESPONSE: 'CONTENT_TEXT_RESPONSE',
+  CONTENT_HTML_TEXT_RESPONSE: 'CONTENT_HTML_TEXT_RESPONSE',
   LINK_TOUCHED: 'LINK_TOUCHED',
   SELECTED_TEXT_CHANGED: 'SELECTED_TEXT_CHANGED'
 };
