@@ -94,8 +94,8 @@ export default class RichTextEditor extends Component {
   onBridgeMessage(str){
     try {
       const message = JSON.parse(str);
-      console.log("MESSAGE==============>")
-      console.log(message)
+      console.log("<---------------------------------------------------str--------------------------------------------------->")
+      console.log(str)
 
       switch (message.type) {
         case messages.CONTENT_HTML_RESPONSE:
@@ -142,6 +142,17 @@ export default class RichTextEditor extends Component {
             }
           }
           break;
+        case messages.CARET_RELATIVE_TO_PARAGRAPH_RESPONSE:
+          if (this.caretRelativeToParagraphResolve) {
+            this.caretRelativeToParagraphResolve(message.data);
+            this.caretRelativeToParagraphResolve = undefined;
+            this.caretRelativeToParagraphReject = undefined;
+            if (this.pendingCaretRelativeToParagraph) {
+              clearTimeout(this.pendingCaretRelativeToParagraph);
+              this.pendingCaretRelativeToParagraph = undefined;
+            }
+          }
+          break;
         case messages.ZSS_INITIALIZED:
           if (this.props.customCSS) {
             this.setCustomCSS(this.props.customCSS);
@@ -160,7 +171,7 @@ export default class RichTextEditor extends Component {
           this.showLinkDialog(title, url);
           break;
         case messages.LOG:
-          console.log('FROM ZSS', message.data);
+          //console.log('FROM ZSS', message.data);
           break;
         case messages.SCROLL:
           this.webviewBridge.setNativeProps({contentOffset: {y: message.data}});
@@ -570,6 +581,10 @@ export default class RichTextEditor extends Component {
     this._sendAction(actions.setPlatform, Platform.OS);
   }
 
+  getEditingItems() {
+    this._sendAction(actions.getEditingItems);
+  }
+
   async getContentHtml() {
     return new Promise((resolve, reject) => {
       this.contentResolve = resolve;
@@ -624,6 +639,20 @@ export default class RichTextEditor extends Component {
         }
       }, 5000);
     });
+  }
+
+  async getCaretRelativeToParagraph() {
+    return new Promise((resolve, reject) => {
+      this.caretRelativeToParagraphResolve = resolve;
+      this.caretRelativeToParagraphReject = reject;
+      this._sendAction(actions.getCaretRelativeToParagraph);
+
+      this.pendingCaretRelativeToParagraph = setTimeout(() => {
+        if (this.caretRelativeToParagraphReject) {
+          this.caretRelativeToParagraphReject('timeout')
+        }
+      }, 5000);
+    })
   }
 
   setContentFocusHandler(callbackHandler) {

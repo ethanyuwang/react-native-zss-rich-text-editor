@@ -50,6 +50,24 @@
 				return s.replace(/^\s+/g, '');
 			}
 
+			function rgb2hex(rgb) {
+			    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+			    function hex(x) {
+			        return ("0" + parseInt(x).toString(16)).slice(-2);
+			    }
+			    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+			}
+
+			function rgbaToHex (rgba) {
+			    var parts = rgba.substring(rgba.indexOf("(")).split(","),
+			        r = parseInt(trim(parts[0].substring(1)), 10),
+			        g = parseInt(trim(parts[1]), 10),
+			        b = parseInt(trim(parts[2]), 10),
+			        a = parseFloat(trim(parts[3].substring(0, parts[3].length - 1))).toFixed(2);
+
+			    return ('#' + r.toString(16) + g.toString(16) + b.toString(16) + (a * 255).toString(16).substring(0,2));
+			}
+
 			function style_html(html_source, options) {
 				//Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -888,7 +906,9 @@
 
 				$(document).on('selectionchange',function(e){
 					console.log('selectionchange');
-					zss_editor.isAtParagraphEnd();
+					zss_editor.wrapFirstTextNode();
+					zss_editor.getCaretRelativeToParagraphListnerWrapper();
+					zss_editor.clearAutocomplete();
 					//commented out for now because its affecting getting correct range in above function;
 					//haven't figured out the usage/necessity of below function
 					//zss_editor.calculateEditorHeightWithCaretPosition();
@@ -1026,29 +1046,43 @@
 				footer.height(footerHeight + 'px');
 			}
 
+			zss_editor.wrapFirstTextNode = function() {
+				var firstChild  = document.getElementById("zss_editor_content").firstChild
+				if (firstChild.nodeType === 3) {
+					//wrap it in p node
+					var wrapper = document.createElement("P");
+					firstChild.parentNode.insertBefore(wrapper, firstChild);
+					wrapper.appendChild(firstChild);
 
-			zss_editor.isAtParagraphEnd = function() {
+					//move cursor to the end of p
+					var sel = window.getSelection();
+					sel.collapse(wrapper, wrapper.innerHTML.length);
+				}
+			}
+
+			zss_editor.getCaretRelativeToParagraphListnerWrapper = function() {
+				caretRelativeToParagraph = zss_editor.getCaretRelativeToParagraph()
+				if (caretRelativeToParagraph) {
+					WebViewBridge.send(JSON.stringify({type: 'CARET', data: caretRelativeToParagraph}));
+				}
+			}
+
+			zss_editor.getCaretRelativeToParagraph = function() {
 				const PARAGRAPH_NODE_NAMES = ['P', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
 				
 				var sel = window.getSelection();
 				var range = sel.getRangeAt(0);
 				var paragraphNode = range.commonAncestorContainer;
 
-				WebViewBridge.send(JSON.stringify({type: 'CARET', data: "1"}));
-
 				//find the parent node that contains the entire paragraph
 				while (paragraphNode.parentNode!=null && PARAGRAPH_NODE_NAMES.indexOf(paragraphNode.nodeName)<0) {
 					paragraphNode = paragraphNode.parentNode
 				}
 
-				WebViewBridge.send(JSON.stringify({type: 'CARET', data: "2"}));
-
 				//if found paragraph node
 				if (PARAGRAPH_NODE_NAMES.indexOf(paragraphNode.nodeName)>-1) {
 					//get paragraph text
 					var paragraphText = paragraphNode.innerText
-
-					WebViewBridge.send(JSON.stringify({type: 'CARET', data: "3"}));
 
 					//get caret's location relative to the start and end of paragraph
 					var preCaretRange = range.cloneRange();
@@ -1063,12 +1097,12 @@
 					caretEndOffset = postCaretRange.toString().length;
 
 					console.log(paragraphNode.nodeName, caretStartOffset, caretEndOffset)
-					caretInfo = {
+					caretRelativeToParagraph = {
 						paragraphText: paragraphText,
 						caretStartOffset: caretStartOffset,
 						caretEndOffset: caretEndOffset
 					};
-					WebViewBridge.send(JSON.stringify({type: 'CARET', data: caretInfo}));
+					return caretRelativeToParagraph
 				}
 			   
 			}
@@ -1449,7 +1483,8 @@
 				//create new textNode
 				var textNode = document.createTextNode(autocomplete)
 				var span = document.createElement("span");
-				span.id = "autocomplete"
+				span.id = "autocomplete";
+				span.contentEditable = "false";
 				span.style.color = '#8E8E93';
 				span.appendChild(textNode);
 
@@ -1560,8 +1595,11 @@
 
 			zss_editor.enabledEditingItems = function(e) {
 
+
 				console.log('enabledEditingItems');
 				var items = [];
+				var backgroundColor = undefined;
+				var textColor = undefined;
 				if (zss_editor.isCommandEnabled('bold')) {
 					items.push('bold');
 				}
@@ -1611,6 +1649,8 @@
 					$(this).addClass('zs_active');
 				});
 
+				zss_editor.debug("Reached 1")
+
 				// Use jQuery to figure out those that are not supported
 				if (typeof(e) != "undefined") {
 
@@ -1620,15 +1660,21 @@
 					var nodeName = e.target.nodeName.toLowerCase();
 
 					// Background Color
-					var bgColor = t.css('backgroundColor');
-					if (bgColor.length != 0 && bgColor != 'rgba(0, 0, 0, 0)' && bgColor != 'rgb(0, 0, 0)' && bgColor != 'transparent') {
+					backgroundColor = t.css('backgroundColor');
+					if (backgroundColor.length != 0 && backgroundColor != 'transparent') {
 						items.push('backgroundColor');
 					}
+
+
+					zss_editor.debug("Reached 2--Backhground Color:" + backgroundColor)
+
 					// Text Color
-					var textColor = t.css('color');
-					if (textColor.length != 0 && textColor != 'rgba(0, 0, 0, 0)' && textColor != 'rgb(0, 0, 0)' && textColor != 'transparent') {
+					textColor = t.css('color');
+					if (textColor.length != 0 && textColor != 'transparent') {
 						items.push('textColor');
 					}
+
+					zss_editor.debug("Reached 2--text Color:" + textColor)
 
 					//Fonts
 					var font = t.css('font-family');
@@ -1652,14 +1698,23 @@
 						zss_editor.currentEditingImage = null;
 					}
 
+					zss_editor.debug("Reached 3")
+
 				}
 
-				notifyIfSelectionHasChanged(items);
+
+				zss_editor.debug("Reached 4")
+
+				notifyIfSelectionHasChanged(items, backgroundColor, textColor);
 			}
 
-			function notifyIfSelectionHasChanged(items) {
+			function notifyIfSelectionHasChanged(items, backgroundColor, textColor) {
 				var selectionChangeMessage = JSON.stringify({
-					data: {items: items},
+					data: {
+						items: items,
+						backgroundColor: backgroundColor,
+						textColor: textColor,
+					},
 					type: 'SELECTION_CHANGE'
 				});
 

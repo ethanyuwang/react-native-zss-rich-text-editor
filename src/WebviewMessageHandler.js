@@ -147,6 +147,10 @@ export const InjectedMessageHandler = `
           var contentHTML = zss_editor.getContentHTML();
           WebViewBridge.send(JSON.stringify({type: '${messages.CONTENT_HTML_TEXT_RESPONSE}', data: {contentText, contentHTML}}));
           break;
+        case '${actions.getCaretRelativeToParagraph}':
+          var caretRelativeToParagraph = zss_editor.getCaretRelativeToParagraph();
+          WebViewBridge.send(JSON.stringify({type: '${messages.CARET_RELATIVE_TO_PARAGRAPH_RESPONSE}', data: caretRelativeToParagraph}));
+          break;
         case '${actions.focusContent}':
           zss_editor.focusContent();
           break;
@@ -182,6 +186,9 @@ export const InjectedMessageHandler = `
           break;
         case '${actions.setPlatform}':
           zss_editor.setPlatform(action.data);
+          break;
+        case '${actions.getEditingItems}':
+          zss_editor.enabledEditingItems();
           break;
       }
     };

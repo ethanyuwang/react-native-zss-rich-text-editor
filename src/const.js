@@ -10,6 +10,7 @@ export const actions = {
   getSelectedText: 'GET_SELECTED_TEXT',
   getContentText: 'GET_CONTENT_TEXT',
   getContentHtmlText: 'GET_CONTENT_HTML_TEXT',
+  getCaretRelativeToParagraph: 'GET_CARET_RELATIVE_TO_PARAGRAPH',
   blurTitleEditor: 'BLUR_TITLE_EDITOR',
   blurContentEditor: 'BLUR_CONTENT_EDITOR',
   focusTitle: 'FOCUS_TITLE',
@@ -60,7 +61,8 @@ export const actions = {
   redo: 'REDO',
   setEditorHeight: 'SET_EDITOR_HEIGHT',
   setFooterHeight: 'SET_FOOTER_HEIGHT',
-  setPlatform: 'SET_PLATFORM'
+  setPlatform: 'SET_PLATFORM',
+  getEditingItems: 'GET_EDITING_ITEMS'
 };
 
 
@@ -77,6 +79,7 @@ export const messages = {
   SELECTED_TEXT_RESPONSE: 'SELECTED_TEXT_RESPONSE',
   CONTENT_TEXT_RESPONSE: 'CONTENT_TEXT_RESPONSE',
   CONTENT_HTML_TEXT_RESPONSE: 'CONTENT_HTML_TEXT_RESPONSE',
+  CARET_RELATIVE_TO_PARAGRAPH_RESPONSE: 'CARET_RELATIVE_TO_PARAGRAPH_RESPONSE',
   LINK_TOUCHED: 'LINK_TOUCHED',
   SELECTED_TEXT_CHANGED: 'SELECTED_TEXT_CHANGED'
 };
